@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="Marsh: TankBot", group="Pushbot")
+@TeleOp(name="Jade: TankBot", group="Pushbot")
 
-public class TankBot extends OpMode{ //Declare OpMode members (hardware & variables)
+public class TankBotJade extends OpMode{ //Declare OpMode members (hardware & variables)
     private DcMotor left_drive = null;
     private DcMotor right_drive = null;
     private DcMotor arm_rotation = null;
@@ -15,7 +15,7 @@ public class TankBot extends OpMode{ //Declare OpMode members (hardware & variab
     private Servo claw_left = null;
     private Servo claw_right = null;
 
-    private boolean claw_open = false;
+
     @Override
     public void init() { // Code to run ONCE when the driver hits INIT
         // Initialize the hardware variables.
@@ -30,8 +30,6 @@ public class TankBot extends OpMode{ //Declare OpMode members (hardware & variab
         right_drive.setDirection(DcMotor.Direction.FORWARD);
         arm_rotation.setDirection(DcMotor.Direction.FORWARD);
         arm_linear.setDirection(DcMotor.Direction.FORWARD);
-        arm_rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm_linear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         claw_left.setPosition(0.5);
         claw_right.setPosition(0.5);
         // Send telemetry message to signify robot waiting;
@@ -63,7 +61,21 @@ public class TankBot extends OpMode{ //Declare OpMode members (hardware & variab
         double right;
         double rotation;
         double linear;
-        //boolean claw_open;
+
+        left = 0.0;
+        right = 0.0;
+
+
+        // IF trigger pulled
+        if(gamepad1.right_trigger > 0){
+
+            left = 0.50;
+            right = 0.50;
+
+        };
+
+        drive(left, right);
+
 
         // Run wheels in tank mode (note: The joystick goes negative when pushed forwards, so negate it)
         left = gamepad1.left_stick_y/3*2;
@@ -74,30 +86,32 @@ public class TankBot extends OpMode{ //Declare OpMode members (hardware & variab
 
         telemetry.addData("Claw Left", claw_left.getPosition());
         telemetry.addData("Claw Right", claw_right.getPosition());
-        telemetry.addData("Arm Rotation", arm_rotation.getCurrentPosition());
-        telemetry.addData("Arm Linear", arm_linear.getCurrentPosition());
         telemetry.update();
 
 
 
         arm_linear.setPower(linear);
         arm_rotation.setPower(rotation);
-        left_drive.setPower(left);
-        right_drive.setPower(right);
 
         if (gamepad2.a){
-            if (claw_open) {
-                claw_right.setPosition(0.75);
-                claw_left.setPosition(0.25);
-                claw_open = false;
-            }
-            else {
-                claw_right.setPosition(0.25);
-                claw_left.setPosition(0.75);
-                claw_open = true;
-            }
+            claw_right.setPosition(1);
+            claw_left.setPosition(0);
         }
+        if (gamepad2.b) {
+            claw_right.setPosition(0);
+            claw_left.setPosition(1);
+
+        }
+
     }
+    /*
+    * This function drives the bot
+    */
+    public void drive(double leftDrive, double rightDrive){
+        left_drive.setPower(leftDrive);
+
+        right_drive.setPower(rightDrive);
+    };
     /*
      * Code to run ONCE after the driver hits STOP
      */
